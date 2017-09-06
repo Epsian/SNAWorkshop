@@ -1,0 +1,71 @@
+---
+title: "Workshop"
+author: "Jared Joseph"
+date: "August 31, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if(!require(statnet)){
+    install.packages("statnet")
+    library(statnet)
+}
+```
+
+# What Can You Expect from this Workshop?
+
+This workshop is intended to give an introduction to Social Network Analysis (SNA) in R, using the Statnet package. We will cover the core concepts in SNA, when you might consider using it, what data kind of data is required, and how to go about exploring your own data.
+
+# What is Social Network Analysis (SNA)?
+
+SNA is a method to look at relational data, meaning that rather than looking at attributes of specific data points, we are looking at the connections between data. IN SNA, data points are called *nodes*, and the connections between them are called *edges*.
+
+```{r}
+set.seed(10)
+e.m = rgraph(2, mode="graph", tprob = .4)
+e.n = network(e.m, matrix.type = "adjacency", directed = FALSE)
+plot(e.n, label = "Node", edge.label = "edge")
+rm(e.m, e.n)
+```
+
+By looking at these connections in aggregate, we can generate a network that represents the structure of those connections from the outside. By taking an outside perspective, we may be able to see patterns of resource flow, centralization of power, or other structural patterns that may not be apparent from the presective of an individual point in the network.
+
+## Graph Level Properties
+
+### Directionality
+
+Social networks can be either *directed* or *undirected*. A directed network tracks what node is sending something to another node, while undirected networks consider all edges to be mutual. Which one you may find useful largely depends on what you are interested in, and the data you are using. Consider connections on facebook as mutual, as all friends are mutual, meanwhile on say instagram, users follow one another, but that connection does not have to be mutual. This is represented visualy using arrows.
+
+```{r}
+set.seed(11)
+e.m = rgraph(5, mode="digraph", tprob = .4)
+e.d = network(e.m, matrix.type = "adjacency", directed = TRUE)
+e.u = network(e.m, matrix.type = "adjacency", directed = FALSE)
+
+par(mfrow=c(1,2))
+plot(e.d, main = "Directed")
+plot(e.u, main = "Undirected")
+```
+
+### Density
+
+Density
+
+### Centralization
+
+## Node Level Properties
+
+### Degree
+
+### Geodesic Distance
+
+### Centrality
+
+# What Can SNA Do?
+
+
+# Example Data
+```{r}
+data(florentine)
+```
