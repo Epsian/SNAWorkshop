@@ -36,14 +36,13 @@ SNA is a method to look at relational data, meaning that rather than looking at 
 set.seed(10)
 e.m = rgraph(2, mode="graph", tprob = .4)
 e.n = network(e.m, matrix.type = "adjacency", directed = FALSE)
-plot(e.n, label = "Node", edge.label = "edge")
+plot(e.n, label = "Node", edge.label = "edge", vertex.cex = 3)
 ```
 
 By looking at these connections in aggregate, we can generate a network that represents the structure of those connections from the outside. By taking an outside perspective, we may be able to see patterns of resource flow, centralization of power, or other structural patterns that may not be apparent from the perspective of an individual point in the network.
 
 ## Graph Level Properties
 ### Directionality
-
 Social networks can be either **directed** or **undirected**. A directed network tracks what node is sending something to another node, while undirected networks consider all edges to be mutual. Which one you may find useful largely depends on what you are interested in, and the data you are using. Consider connections on Facebook as mutual, as all friends are mutual, meanwhile on say Instagram, users follow one another, but that connection does not have to be mutual. This is represented visually using arrows.
 
 ```{r}
@@ -58,11 +57,9 @@ plot(e.u, main = "Undirected", vertex.cex = 3)
 ```
 
 ### Density
-
 **Density** is a measure of how many edges exist in a network out of the total possible edge count, using $\frac{Actual Edges}{Possible Edges}$. Networks that are more densely connected are considered to be more cohesive, and robust, in that the removal of any specific edge will not have a great effect of the network as a whole. It also means that, given the nodes being individuals, each node will have a more direct route to resources that may be present in the network, as they know more individuals who may have the resource they are looking for, or will have a greater chance of knowing someone else who does.
 
 ### Centralization
-
 Centralization measures are statistics describing the entire network. These provide an overview of some basic characteristics of the network as a whole.
 
 **Degree Centralization**
@@ -71,15 +68,15 @@ Centralization measures are statistics describing the entire network. These prov
 
 ## Node Level Properties
 ### Degree
-
 **Degree** measures are counts of how many edges are connected to a node. You can count incoming, outgoing, or total edge counts. This gives a very rough measure of how popular or central a node is in the network. 
 
 ### Geodesic Distance
-
 **Geodesic Distance** is defined as "the length of the shortest path via the edges or binary connections between nodes." [(Kadushin 2012)](https://www.amazon.com/Understanding-Social-Networks-Theories-Concepts/dp/0195379470/ref=pd_bxgy_14_img_3?_encoding=UTF8&psc=1&refRID=9MSKEK7804SY2RS02HQG) 
 
-### Centrality
+### K-Core
+**K-Core** measures the the minimum degree of nodes in an area of the network. 
 
+### Centrality
 **Centrality** measures how prominent or popular a specific node is in a network. 
 
 *Eigenvector Centrality*
@@ -91,7 +88,7 @@ Centralization measures are statistics describing the entire network. These prov
 ```{r}
 set.seed(12)
 data(florentine)
-plot(flomarriage, main = "Florentine Marriage Network", displaylabels = TRUE, label.pos = 0)
+plot(flomarriage, main = "Florentine Marriage Network", displaylabels = TRUE, label.pos = 0, arrowhead.cex = 3, vertex.cex = 3)
 ```
 
 ## Try it Yourself!
@@ -107,7 +104,7 @@ Here is an interactive network graph. Try adjusting the parameters to see how it
 Data for SNA is ultimatly just relational data; if you have a list of Xs interacting with Ys, you have network data. However, there are two main ways to represent that data to be useful in SNA using R.
 
 ## Adjacency Matrix
-An **adjacency matrix** is a matrix with each node in your network represented as a row and column. If two nodes are connected, a one is put into the matrix where they intersect, if they do not, the value is zero. It is possible to weight connections (i.e. have a 2 or 3 represent multiple connections, but it is not well supported.)
+An **adjacency matrix** is a matrix with each node in your network represented as a row and column. If two nodes are connected, a one is put into the matrix where they intersect, if they do not, the value is zero. The sender nodes are the rows, and the receiver nodes are the columns. It is possible to weight connections (i.e. have a 2 or 3 represent multiple connections, but it is not well supported.)
 
 ```{r}
 am = as.sociomatrix(e.d)
@@ -117,7 +114,7 @@ knitr::kable(am)
 ```
 
 ## Edgelist
-An **edgelist** is a long matrix with two columns contaning the uniqie names for your nodes. 
+An **edgelist** is a long matrix with two columns contaning the uniqie names for your nodes. The first column is called **ego**, which contains who is sending the connection in a directed network. The second column is called **alter**, or who is receiving the connection. In an undirected network, you only need to include a connection in one direction, and it will always count as mutual. The columns do not need to be named ego and alter, but those are the common terms used in network research. 
 
 ```{r}
 el = as.data.frame(as.edgelist(e.d), stringsAsFactors = FALSE)
@@ -127,6 +124,35 @@ el$ego = key[match(el[["ego"]], key[["id"]]), "name"]
 el$alter = key[match(el[["alter"]], key[["id"]]), "name"]
 knitr::kable(el)
 ```
+
+Both of these data sets create the following network. Try comparing the data sets to the plot, looking at directionality specifically.
+```{r}
+e.d%v%"vertex.names" = letters[1:length(e.d%v%"vertex.names")]
+plot(e.d, displaylabels = TRUE, label.pos = 0, arrowhead.cex = 3, vertex.cex = 3)
+```
+
+## Isolates and Largest Components
+Regardless of how your data is formatted, it is likely that not all nodes will be connected to each other. Depending on how the data was collected, you may even have **isolates** in your data, or nodes that have no edges at all; these appear as a lone dot in network graphs. There can also be multiple **components** or collection of nodes that are tied to each other. Even though they are not connected, these components are considered to be the same 'network' if they came from the same data.
+
+```{r components}
+set.seed(26)
+com = rgraph(30, mode="graph", tprob = .08)
+com = network(com, directed = FALSE)
+plot(com, main = "Multiple Components and Isolates")
+```
+
+Many of the analyses discussed above cannot be run on a netowkr with multiple components. For example, if we tried to get the geodesic distances of the nodes in this netowrk, it would return only NAs, as some nodes cannot reach other nodes in the network, so their distance is unobtainable. The quickest way to deal with this situation is to reduce the network to only the largest component. In most networks, this will remove only a small amount of data, but it could be the case that you have a network that is split more evenlt; always look at your network before making such decisions. 
+
+Taking the network from above, and extracting the largest component looks like this:
+```{r largest component, message = FALSE}
+capture.output({
+com%v%"lc" = component.largest(com)
+com = delete.vertices(com, which(com%v%"lc" == FALSE))
+}, file = tempfile()) #These are just to silence some code output, remove them if you would like!
+plot(com, main = "Largest Component Only")
+```
+
+
 
 # What Can SNA Do?
 ## Good For
