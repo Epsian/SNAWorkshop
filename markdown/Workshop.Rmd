@@ -2,7 +2,10 @@
 title: "Workshop"
 author: "Jared Joseph"
 date: "August 31, 2017"
-output: html_document
+output: 
+  html_document:
+    code_folding: hide
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE, echo = FALSE}
@@ -13,59 +16,124 @@ if(!require(statnet)){
 }
 ```
 
+### Thinking with Networks
+
+Early? Play around with this while you wait!
+
+https://oracleofbacon.org/
+
+What do these connections mean? How are they related to networks?
+
 # What Can You Expect from this Workshop?
 
 This workshop is intended to give an introduction to Social Network Analysis (SNA) in R, using the Statnet package. We will cover the core concepts in SNA, when you might consider using it, what data kind of data is required, and how to go about exploring your own data.
 
 # What is Social Network Analysis (SNA)?
 
-SNA is a method to look at relational data, meaning that rather than looking at attributes of specific data points, we are looking at the connections between data. IN SNA, data points are called *nodes*, and the connections between them are called *edges*.
+SNA is a method to look at relational data, meaning that rather than looking at attributes of specific data points, we are looking at the connections between data. IN SNA, data points are called **nodes**, and the connections between them are called **edges**. These components create a **network**, defined by [Wasserman & Faust (1994)](https://www.amazon.com/Social-Network-Analysis-Applications-Structural/dp/0521387078) as "finite set or sets of actors and the relation or relations defined on them."
 
 ```{r}
 set.seed(10)
 e.m = rgraph(2, mode="graph", tprob = .4)
 e.n = network(e.m, matrix.type = "adjacency", directed = FALSE)
 plot(e.n, label = "Node", edge.label = "edge")
-rm(e.m, e.n)
 ```
 
-By looking at these connections in aggregate, we can generate a network that represents the structure of those connections from the outside. By taking an outside perspective, we may be able to see patterns of resource flow, centralization of power, or other structural patterns that may not be apparent from the presective of an individual point in the network.
+By looking at these connections in aggregate, we can generate a network that represents the structure of those connections from the outside. By taking an outside perspective, we may be able to see patterns of resource flow, centralization of power, or other structural patterns that may not be apparent from the perspective of an individual point in the network.
 
 ## Graph Level Properties
-
 ### Directionality
 
-Social networks can be either *directed* or *undirected*. A directed network tracks what node is sending something to another node, while undirected networks consider all edges to be mutual. Which one you may find useful largely depends on what you are interested in, and the data you are using. Consider connections on facebook as mutual, as all friends are mutual, meanwhile on say instagram, users follow one another, but that connection does not have to be mutual. This is represented visualy using arrows.
+Social networks can be either **directed** or **undirected**. A directed network tracks what node is sending something to another node, while undirected networks consider all edges to be mutual. Which one you may find useful largely depends on what you are interested in, and the data you are using. Consider connections on Facebook as mutual, as all friends are mutual, meanwhile on say Instagram, users follow one another, but that connection does not have to be mutual. This is represented visually using arrows.
 
 ```{r}
-set.seed(11)
-e.m = rgraph(5, mode="digraph", tprob = .4)
+set.seed(31)
+e.m = rgraph(10, mode="digraph", tprob = .17)
 e.d = network(e.m, matrix.type = "adjacency", directed = TRUE)
 e.u = network(e.m, matrix.type = "adjacency", directed = FALSE)
 
 par(mfrow=c(1,2))
-plot(e.d, main = "Directed")
-plot(e.u, main = "Undirected")
+plot(e.d, main = "Directed", arrowhead.cex = 3, vertex.cex = 3)
+plot(e.u, main = "Undirected", vertex.cex = 3)
 ```
 
 ### Density
 
-Density
+**Density** is a measure of how many edges exist in a network out of the total possible edge count, using $\frac{Actual Edges}{Possible Edges}$. Networks that are more densely connected are considered to be more cohesive, and robust, in that the removal of any specific edge will not have a great effect of the network as a whole. It also means that, given the nodes being individuals, each node will have a more direct route to resources that may be present in the network, as they know more individuals who may have the resource they are looking for, or will have a greater chance of knowing someone else who does.
 
 ### Centralization
 
-## Node Level Properties
+Centralization measures are statistics describing the entire network. These provide an overview of some basic characteristics of the network as a whole.
 
+**Degree Centralization**
+
+**Betweenness Centralization**
+
+## Node Level Properties
 ### Degree
+
+**Degree** measures are counts of how many edges are connected to a node. You can count incoming, outgoing, or total edge counts. This gives a very rough measure of how popular or central a node is in the network. 
 
 ### Geodesic Distance
 
+**Geodesic Distance** is defined as "the length of the shortest path via the edges or binary connections between nodes." [(Kadushin 2012)](https://www.amazon.com/Understanding-Social-Networks-Theories-Concepts/dp/0195379470/ref=pd_bxgy_14_img_3?_encoding=UTF8&psc=1&refRID=9MSKEK7804SY2RS02HQG) 
+
 ### Centrality
 
-# What Can SNA Do?
+**Centrality** measures how prominent or popular a specific node is in a network. 
 
+*Eigenvector Centrality*
 
-# Example Data
+*Betweenness Centrality*
+
+### Example
+
 ```{r}
+set.seed(12)
 data(florentine)
+plot(flomarriage, main = "Florentine Marriage Network", displaylabels = TRUE, label.pos = 0)
 ```
+
+## Try it Yourself!
+
+Here is an interactive network graph. Try adjusting the parameters to see how it affects the network!
+
+```{r}
+
+```
+
+# What does SNA Data Look Like?
+
+Data for SNA is ultimatly just relational data; if you have a list of Xs interacting with Ys, you have network data. However, there are two main ways to represent that data to be useful in SNA using R.
+
+## Adjacency Matrix
+An **adjacency matrix** is a matrix with each node in your network represented as a row and column. If two nodes are connected, a one is put into the matrix where they intersect, if they do not, the value is zero. It is possible to weight connections (i.e. have a 2 or 3 represent multiple connections, but it is not well supported.)
+
+```{r}
+am = as.sociomatrix(e.d)
+colnames(am) = letters[1:length(colnames(am))]
+row.names(am) = letters[1:length(row.names(am))]
+knitr::kable(am)
+```
+
+## Edgelist
+An **edgelist** is a long matrix with two columns contaning the uniqie names for your nodes. 
+
+```{r}
+el = as.data.frame(as.edgelist(e.d), stringsAsFactors = FALSE)
+key = data.frame(id = 1:10, name = letters[1:10])
+colnames(el) = c("ego", "alter")
+el$ego = key[match(el[["ego"]], key[["id"]]), "name"]
+el$alter = key[match(el[["alter"]], key[["id"]]), "name"]
+knitr::kable(el)
+```
+
+# What Can SNA Do?
+## Good For
+Looking at relational data.
+## Bad For
+Multiplex Networks (in Statnet) - Statnet has the ability to handle multiplex netowrks, but it is difficult and unintuitive.
+
+
+
+Special Thanks to Dr. Chris Smith, ... . This presentation was created with the help of [(Kadushin 2012)](https://www.amazon.com/Understanding-Social-Networks-Theories-Concepts/dp/0195379470/ref=pd_bxgy_14_img_3?_encoding=UTF8&psc=1&refRID=9MSKEK7804SY2RS02HQG).
