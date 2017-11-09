@@ -1,5 +1,5 @@
 ---
-title: "Workshop"
+title: "Social Network Analysis Workshop"
 author: "Jared Joseph"
 date: "August 31, 2017"
 output: 
@@ -18,7 +18,9 @@ if(!require(statnet)){
 
 ### Thinking with Networks
 
-Early? Play around with this while you wait!
+Early? Make sure that you have installed the statnet package!
+
+Play around with this while you wait!
 
 https://oracleofbacon.org/
 
@@ -26,7 +28,7 @@ What do these connections mean? How are they related to networks?
 
 # What Can You Expect from this Workshop?
 
-This workshop is intended to give an introduction to Social Network Analysis (SNA) in R, using the Statnet package. We will cover the core concepts in SNA, when you might consider using it, what data kind of data is required, and how to go about exploring your own data.
+This workshop is intended to give an introduction to Social Network Analysis (SNA) in R, using the Statnet package. We will cover the core concepts in SNA, when you might consider using it, what data kind of data is required, and how to go about exploring your own data. *igraph* is another popular network package in R, and while we won't cover it here, the network prinicples are transferablw. 
 
 # What is Social Network Analysis (SNA)?
 
@@ -39,7 +41,15 @@ e.n = network(e.m, matrix.type = "adjacency", directed = FALSE)
 plot(e.n, label = "Node", edge.label = "edge", vertex.cex = 3)
 ```
 
-By looking at these connections in aggregate, we can generate a network that represents the structure of those connections from the outside. By taking an outside perspective, we may be able to see patterns of resource flow, centralization of power, or other structural patterns that may not be apparent from the perspective of an individual point in the network.
+By looking at these connections in aggregate, we can generate a network that represents the structure of those connections. By taking an outside perspective, we may be able to see patterns of resource flow, centralization of power, or other structural patterns that may not be apparent from the perspective of an individual point in the network.
+
+## Examples of Research Using SNA
+
+### Social Sciences
+As far back as 1932, networks have been of interest in the social sciences. Jacob Moreno is credited with one of the first network based studies, focusing on runaway school children, and how their associations could predict running more than any attributes of the individual children. Since then, networks have been used in the social sciences to study community cohesion, gender attitudes in the family, and crime.
+
+Borgatti, S. P., Mehra, A., Brass, D. J., & Labianca, G. (2009). Network Analysis in the Social Sciences. Science, 323(5916), 892. 
+
 
 ## Graph Level Properties
 ### Directionality
@@ -101,7 +111,7 @@ Here is an interactive network graph. Try adjusting the parameters to see how it
 
 # What does SNA Data Look Like?
 
-Data for SNA is ultimatly just relational data; if you have a list of Xs interacting with Ys, you have network data. However, there are two main ways to represent that data to be useful in SNA using R.
+Data for SNA is ultimately just relational data; if you have a list of Xs interacting with Ys, you have network data. However, there are two main ways to represent that data to be useful in SNA using R.
 
 ## Adjacency Matrix
 An **adjacency matrix** is a matrix with each node in your network represented as a row and column. If two nodes are connected, a one is put into the matrix where they intersect, if they do not, the value is zero. The sender nodes are the rows, and the receiver nodes are the columns. It is possible to weight connections (i.e. have a 2 or 3 represent multiple connections, but it is not well supported.)
@@ -114,7 +124,7 @@ knitr::kable(am)
 ```
 
 ## Edgelist
-An **edgelist** is a long matrix with two columns contaning the uniqie names for your nodes. The first column is called **ego**, which contains who is sending the connection in a directed network. The second column is called **alter**, or who is receiving the connection. In an undirected network, you only need to include a connection in one direction, and it will always count as mutual. The columns do not need to be named ego and alter, but those are the common terms used in network research. 
+An **edgelist** is a long matrix with two columns containing the unique names for your nodes. The first column is called **ego**, which contains who is sending the connection in a directed network. The second column is called **alter**, or who is receiving the connection. In an undirected network, you only need to include a connection in one direction, and it will always count as mutual. The columns do not need to be named ego and alter, but those are the common terms used in network research. 
 
 ```{r}
 el = as.data.frame(as.edgelist(e.d), stringsAsFactors = FALSE)
@@ -132,25 +142,30 @@ plot(e.d, displaylabels = TRUE, label.pos = 0, arrowhead.cex = 3, vertex.cex = 3
 ```
 
 ## Isolates and Largest Components
-Regardless of how your data is formatted, it is likely that not all nodes will be connected to each other. Depending on how the data was collected, you may even have **isolates** in your data, or nodes that have no edges at all; these appear as a lone dot in network graphs. There can also be multiple **components** or collection of nodes that are tied to each other. Even though they are not connected, these components are considered to be the same 'network' if they came from the same data.
+Regardless of how your data is formatted, it is likely that not all nodes will be connected to each other. Depending on how the data was collected, you may even have **isolates** in your data, or nodes that have no edges at all; these appear as lone dots in network graphs. There can also be multiple **components** or collection of nodes that are tied to each other. Even though they are not connected, these components are considered to be the same 'network' if they came from the same data.
+
+Many of the analyses discussed above cannot be run on a network with multiple components. For example, if we tried to get the geodesic distances of the nodes in this network, it would return only NAs, as some nodes cannot reach other nodes in the network, so their distance is unobtainable. The quickest way to deal with this situation is to reduce the network to only the largest component. In most networks, this will remove only a small amount of data, but it could be the case that you have a network that is split more evenly; always look at your network before making such decisions. 
+
+Presented is a comparison between a total network, and he largest component:
 
 ```{r components}
 set.seed(26)
 com = rgraph(30, mode="graph", tprob = .08)
 com = network(com, directed = FALSE)
-plot(com, main = "Multiple Components and Isolates")
-```
 
-Many of the analyses discussed above cannot be run on a netowkr with multiple components. For example, if we tried to get the geodesic distances of the nodes in this netowrk, it would return only NAs, as some nodes cannot reach other nodes in the network, so their distance is unobtainable. The quickest way to deal with this situation is to reduce the network to only the largest component. In most networks, this will remove only a small amount of data, but it could be the case that you have a network that is split more evenlt; always look at your network before making such decisions. 
-
-Taking the network from above, and extracting the largest component looks like this:
-```{r largest component, message = FALSE}
 capture.output({
-com%v%"lc" = component.largest(com)
-com = delete.vertices(com, which(com%v%"lc" == FALSE))
+lcom = com
+lcom%v%"lc" = component.largest(lcom)
+lcom = delete.vertices(lcom, which(lcom%v%"lc" == FALSE))
 }, file = tempfile()) #These are just to silence some code output, remove them if you would like!
-plot(com, main = "Largest Component Only")
+
+par(mfrow = c(1,2))
+plot(com, main = "Multiple Components and Isolates")
+plot(lcom, main = "Largest Component Only")
 ```
+
+
+
 
 
 
@@ -158,7 +173,7 @@ plot(com, main = "Largest Component Only")
 ## Good For
 Looking at relational data.
 ## Bad For
-Multiplex Networks (in Statnet) - Statnet has the ability to handle multiplex netowrks, but it is difficult and unintuitive.
+Multiplex Networks (in Statnet) - Statnet has the ability to handle multiplex networks, but it is difficult and unintuitive.
 
 
 
