@@ -18,9 +18,7 @@ if(!require(statnet)){
 
 ### Thinking with Networks
 
-Early? Make sure that you have installed the statnet package!
-
-Play around with this while you wait!
+Early? Make sure that you have installed the statnet package, or play around with this while you wait!
 
 https://oracleofbacon.org/
 
@@ -28,28 +26,44 @@ What do these connections mean? How are they related to networks?
 
 # What Can You Expect from this Workshop?
 
-This workshop is intended to give an introduction to Social Network Analysis (SNA) in R, using the Statnet package. We will cover the core concepts in SNA, when you might consider using it, what data kind of data is required, and how to go about exploring your own data. *igraph* is another popular network package in R, and while we won't cover it here, the network prinicples are transferablw. 
+This workshop is intended to give an introduction to Social Network Analysis (SNA) in R, using the Statnet package. We will cover the core concepts in SNA, when you might consider using it, what data kind of data is required, and how to go about exploring your own data. *igraph* is another popular network package in R, and while we won't cover it here, the network prinicples are transferable.
+
+The workshop assumes you have a working knowlage of R.
 
 # What is Social Network Analysis (SNA)?
 
-SNA is a method to look at relational data, meaning that rather than looking at attributes of specific data points, we are looking at the connections between data. IN SNA, data points are called **nodes**, and the connections between them are called **edges**. These components create a **network**, defined by [Wasserman & Faust (1994)](https://www.amazon.com/Social-Network-Analysis-Applications-Structural/dp/0521387078) as "finite set or sets of actors and the relation or relations defined on them."
+SNA is a method to look at relational data, meaning that rather than looking only at attributes of specific data points, we are looking at the connections between data. IN SNA, data points are called **nodes**, and the connections between them are called **edges**. These components create a **network**, defined by [Wasserman & Faust (1994)](https://www.amazon.com/Social-Network-Analysis-Applications-Structural/dp/0521387078) as "finite set or sets of actors and the relation or relations defined on them."
 
 ```{r}
 set.seed(10)
 e.m = rgraph(2, mode="graph", tprob = .4)
 e.n = network(e.m, matrix.type = "adjacency", directed = FALSE)
+par(mar=c(0,0,0,0))
 plot(e.n, label = "Node", edge.label = "edge", vertex.cex = 3)
 ```
 
 By looking at these connections in aggregate, we can generate a network that represents the structure of those connections. By taking an outside perspective, we may be able to see patterns of resource flow, centralization of power, or other structural patterns that may not be apparent from the perspective of an individual point in the network.
 
-## Examples of Research Using SNA
+## Examples
 
 ### Social Sciences
 As far back as 1932, networks have been of interest in the social sciences. Jacob Moreno is credited with one of the first network based studies, focusing on runaway school children, and how their associations could predict running more than any attributes of the individual children. Since then, networks have been used in the social sciences to study community cohesion, gender attitudes in the family, and crime.
 
-Borgatti, S. P., Mehra, A., Brass, D. J., & Labianca, G. (2009). Network Analysis in the Social Sciences. Science, 323(5916), 892. 
+Borgatti, S. P., Mehra, A., Brass, D. J., & Labianca, G. (2009). Network Analysis in the Social Sciences. Science, 323(5916), 892.
 
+### Neuroscience
+The brain is often conceptualised as a network of neurons, which inspired the neural network family of machine leraning algorthms. SNA is sometimes used to make path models of the brain, charting how different barin reigons interact.
+
+### The Internet
+The internet is based on a network structure of sites and hyperlinks, making SNA useful for visualization and understanding the influence of certain sites. One netowork measure, "PageRank" was developed by Google to measure the relative importance of certain webpages, and optimize their search engine.
+
+### Infastructure
+SNA is often used to look at infastructure such as the electrical grid, with power stations as nodes and power lines as edges. Using some network measures, it is possible to see which stations are overburdened with relaying power, and which ones act as bottlenecks. You can also see which ones would cut power to the most people if they were to fail.
+
+### Security
+Closely tied to the above example is the use of SNA in security. The US Government uses SNA like methods to map criminal and terorist orgonizations, and uses tools like 'Keyplayer' to identify the most vital individuals in a network, and which individuals whose removal will most damage the network.
+
+See [Network Science by Albert-László Barabási](http://barabasi.com/networksciencebook/chapter/1#vulnerability) for elaborations on these examples and more.
 
 ## Graph Level Properties
 ### Directionality
@@ -70,9 +84,7 @@ plot(e.u, main = "Undirected", vertex.cex = 3)
 **Density** is a measure of how many edges exist in a network out of the total possible edge count, using $\frac{Actual Edges}{Possible Edges}$. Networks that are more densely connected are considered to be more cohesive, and robust, in that the removal of any specific edge will not have a great effect of the network as a whole. It also means that, given the nodes being individuals, each node will have a more direct route to resources that may be present in the network, as they know more individuals who may have the resource they are looking for, or will have a greater chance of knowing someone else who does.
 
 ### Centralization
-Centralization measures are statistics describing the entire network. These provide an overview of some basic characteristics of the network as a whole.
-
-**Degree Centralization**
+Centralization measures are measures describing the entire network. These provide an overview of some basic characteristics of the network as a whole. **Degree Centralization**
 
 **Betweenness Centralization**
 
