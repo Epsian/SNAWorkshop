@@ -6,6 +6,7 @@ output:
   html_document:
     code_folding: hide
     df_print: paged
+runtime: shiny
 ---
 
 ```{r setup, include=FALSE, echo = FALSE}
@@ -32,9 +33,8 @@ The workshop assumes you have a working knowlage of R.
 
 # What is Social Network Analysis (SNA)?
 
-SNA is a method to look at relational data, meaning that rather than looking only at attributes of specific data points, we are looking at the connections between data. IN SNA, data points are called **nodes**, and the connections between them are called **edges**. These components create a **network**, defined by [Wasserman & Faust (1994)](https://www.amazon.com/Social-Network-Analysis-Applications-Structural/dp/0521387078) as "finite set or sets of actors and the relation or relations defined on them."
-
-```{r}
+SNA is a method to look at relational data, meaning that rather than looking only at attributes of specific data points, we are looking at the connections between data. IN SNA, data points are called **nodes**, and the connections between them are called **edges**. These components create a **network**, defined by [Wasserman & Faust (1994)](http://www.cambridge.org/us/academic/subjects/sociology/sociology-general-interest/social-network-analysis-methods-and-applications?format=PB) as "finite set or sets of actors and the relation or relations defined on them."
+```{r First Network}
 set.seed(10)
 e.m = rgraph(2, mode="graph", tprob = .4)
 e.n = network(e.m, matrix.type = "adjacency", directed = FALSE)
@@ -45,7 +45,6 @@ plot(e.n, label = "Node", edge.label = "edge", vertex.cex = 3)
 By looking at these connections in aggregate, we can generate a network that represents the structure of those connections. By taking an outside perspective, we may be able to see patterns of resource flow, centralization of power, or other structural patterns that may not be apparent from the perspective of an individual point in the network.
 
 ## Examples
-
 ### Social Sciences
 As far back as 1932, networks have been of interest in the social sciences. Jacob Moreno is credited with one of the first network based studies, focusing on runaway school children, and how their associations could predict running more than any attributes of the individual children. Since then, networks have been used in the social sciences to study community cohesion, gender attitudes in the family, and crime.
 
@@ -53,6 +52,9 @@ Borgatti, S. P., Mehra, A., Brass, D. J., & Labianca, G. (2009). Network Analysi
 
 ### Neuroscience
 The brain is often conceptualised as a network of neurons, which inspired the neural network family of machine leraning algorthms. SNA is sometimes used to make path models of the brain, charting how different barin reigons interact.
+
+### Chemestry
+Network models are sometimes used as analogs for atoms and molocules, with different types of edgest representing different bonds. 
 
 ### The Internet
 The internet is based on a network structure of sites and hyperlinks, making SNA useful for visualization and understanding the influence of certain sites. One netowork measure, "PageRank" was developed by Google to measure the relative importance of certain webpages, and optimize their search engine.
@@ -63,13 +65,11 @@ SNA is often used to look at infastructure such as the electrical grid, with pow
 ### Security
 Closely tied to the above example is the use of SNA in security. The US Government uses SNA like methods to map criminal and terorist orgonizations, and uses tools like 'Keyplayer' to identify the most vital individuals in a network, and which individuals whose removal will most damage the network.
 
-See [Network Science by Albert-László Barabási](http://barabasi.com/networksciencebook/chapter/1#vulnerability) for elaborations on these examples and more.
+See [Network Science by Albert-László Barabási](http://barabasi.com/networksciencebook) for elaborations on these examples and more.
 
 ## Graph Level Properties
-### Directionality
-Social networks can be either **directed** or **undirected**. A directed network tracks what node is sending something to another node, while undirected networks consider all edges to be mutual. Which one you may find useful largely depends on what you are interested in, and the data you are using. Consider connections on Facebook as mutual, as all friends are mutual, meanwhile on say Instagram, users follow one another, but that connection does not have to be mutual. This is represented visually using arrows.
-
-```{r}
+Social networks can be either **directed** or **undirected**. A directed network tracks what node is sending something to another node, while undirected networks consider all edges to be mutual. Which one you may find useful largely depends on what you are interested in, and the data you are using. Consider connections on Facebook as mutual, as all friends are mutual, meanwhile on Twitter, users follow one another, but that connection does not have to be mutual. This is represented visually using arrows.
+```{r Directionality}
 set.seed(31)
 e.m = rgraph(10, mode="digraph", tprob = .17)
 e.d = network(e.m, matrix.type = "adjacency", directed = TRUE)
@@ -80,49 +80,76 @@ plot(e.d, main = "Directed", arrowhead.cex = 3, vertex.cex = 3)
 plot(e.u, main = "Undirected", vertex.cex = 3)
 ```
 
-### Density
 **Density** is a measure of how many edges exist in a network out of the total possible edge count, using $\frac{Actual Edges}{Possible Edges}$. Networks that are more densely connected are considered to be more cohesive, and robust, in that the removal of any specific edge will not have a great effect of the network as a whole. It also means that, given the nodes being individuals, each node will have a more direct route to resources that may be present in the network, as they know more individuals who may have the resource they are looking for, or will have a greater chance of knowing someone else who does.
+```{r Density}
+set.seed(10)
+de.h = network(rgraph(10, mode="digraph", tprob = .7), matrix.type = "adjacency", directed = FALSE)
+de.l = network(rgraph(10, mode="digraph", tprob = .1), matrix.type = "adjacency", directed = FALSE)
 
-### Centralization
-Centralization measures are measures describing the entire network. These provide an overview of some basic characteristics of the network as a whole. **Degree Centralization**
+par(mfrow=c(1,2))
+plot(de.h, main = "High Density", vertex.cex = 3)
+plot(de.l, main = "Low Density", vertex.cex = 3)
+```
+
+**Centralization** measures give a sense of the shape of the network. Conssider the three networks below. The first "Star" network would be considered highly centralised, as one node connects all the others. 
+```{r Centralization}
+ce.star = matrix(data = c(0,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0), nrow = 6, ncol = 6)
+ce.star = network(ce.star, matrix.type = "adjacency", directed = FALSE)
+
+ce.line = matrix(data = c(0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0), nrow = 6, ncol = 6)
+ce.line = network(ce.line, matrix.type = "adjacency", directed = FALSE)
+
+ce.circle = matrix(data = c(0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,1,0), nrow = 6, ncol = 6)
+ce.circle = network(ce.circle, matrix.type = "adjacency", directed = FALSE)
+
+par(mfrow=c(1,3))
+plot(ce.star, main = "Star", vertex.cex = 3)
+plot(ce.line, main = "Line", vertex.cex = 3)
+plot(ce.circle, main = "Circle", vertex.cex = 3)
+```
+
+
+
+**Degree Centralization**
 
 **Betweenness Centralization**
 
 ## Node Level Properties
-### Degree
-**Degree** measures are counts of how many edges are connected to a node. You can count incoming, outgoing, or total edge counts. This gives a very rough measure of how popular or central a node is in the network. 
+**Degree** measures are counts of how many edges are connected to a node. You can count incoming, outgoing, or total (Freeman) degree counts. This gives a very rough measure of how popular or central a node is in the network. 
 
-### Geodesic Distance
-**Geodesic Distance** is defined as "the length of the shortest path via the edges or binary connections between nodes." [(Kadushin 2012)](https://www.amazon.com/Understanding-Social-Networks-Theories-Concepts/dp/0195379470/ref=pd_bxgy_14_img_3?_encoding=UTF8&psc=1&refRID=9MSKEK7804SY2RS02HQG) 
+**Geodesic Distance** is defined as "the length of the shortest path via the edges or binary connections between nodes." [(Kadushin 2012)](https://global.oup.com/academic/product/understanding-social-networks-9780195379471?q=Understanding%20Social%20Networks&lang=en&cc=us) 
 
-### K-Core
 **K-Core** measures the the minimum degree of nodes in an area of the network. 
 
-### Centrality
 **Centrality** measures how prominent or popular a specific node is in a network. 
 
-*Eigenvector Centrality*
+**Eigenvector Centrality**
 
-*Betweenness Centrality*
+**Betweenness Centrality**
 
-### Example
-
-```{r}
+### Example Data
+```{r Florentine}
 set.seed(12)
 data(florentine)
 plot(flomarriage, main = "Florentine Marriage Network", displaylabels = TRUE, label.pos = 0, arrowhead.cex = 3, vertex.cex = 3)
 ```
 
 ## Try it Yourself!
-
 Here is an interactive network graph. Try adjusting the parameters to see how it affects the network!
+```{r Interactive Plot}
+require(shiny)
+wellPanel(
+numericInput("Nodes", "How many nodes?", 10),
+sliderInput("TieProb", "Tie Probability?", min = 0, max = 1, .5),
+checkboxInput("Dir.check", "Directed?")
+)
 
-```{r}
-
+renderPlot({
+  plot(network(rgraph(input$Nodes, mode = "digraph", tprob = input$TieProb), matrix.type = "adjacency", directed = input$Dir.check), arrowhead.cex = 3, vertex.cex = 3)
+})
 ```
 
 # What does SNA Data Look Like?
-
 Data for SNA is ultimately just relational data; if you have a list of Xs interacting with Ys, you have network data. However, there are two main ways to represent that data to be useful in SNA using R.
 
 ## Adjacency Matrix
@@ -159,7 +186,6 @@ Regardless of how your data is formatted, it is likely that not all nodes will b
 Many of the analyses discussed above cannot be run on a network with multiple components. For example, if we tried to get the geodesic distances of the nodes in this network, it would return only NAs, as some nodes cannot reach other nodes in the network, so their distance is unobtainable. The quickest way to deal with this situation is to reduce the network to only the largest component. In most networks, this will remove only a small amount of data, but it could be the case that you have a network that is split more evenly; always look at your network before making such decisions. 
 
 Presented is a comparison between a total network, and he largest component:
-
 ```{r components}
 set.seed(26)
 com = rgraph(30, mode="graph", tprob = .08)
@@ -172,14 +198,9 @@ lcom = delete.vertices(lcom, which(lcom%v%"lc" == FALSE))
 }, file = tempfile()) #These are just to silence some code output, remove them if you would like!
 
 par(mfrow = c(1,2))
-plot(com, main = "Multiple Components and Isolates")
-plot(lcom, main = "Largest Component Only")
+plot(com, main = "Multiple Components and Isolates", arrowhead.cex = 3, vertex.cex = 3)
+plot(lcom, main = "Largest Component Only", arrowhead.cex = 3, vertex.cex = 3)
 ```
-
-
-
-
-
 
 # What Can SNA Do?
 ## Good For
@@ -187,6 +208,7 @@ Looking at relational data.
 ## Bad For
 Multiplex Networks (in Statnet) - Statnet has the ability to handle multiplex networks, but it is difficult and unintuitive.
 
+### Bibliography
 
 
-Special Thanks to Dr. Chris Smith, ... . This presentation was created with the help of [(Kadushin 2012)](https://www.amazon.com/Understanding-Social-Networks-Theories-Concepts/dp/0195379470/ref=pd_bxgy_14_img_3?_encoding=UTF8&psc=1&refRID=9MSKEK7804SY2RS02HQG).
+*Special Thanks to Dr. Chris Smith, ... . This presentation was created with the help of [(Kadushin 2012)](https://www.amazon.com/Understanding-Social-Networks-Theories-Concepts/dp/0195379470/ref=pd_bxgy_14_img_3?_encoding=UTF8&psc=1&refRID=9MSKEK7804SY2RS02HQG).*

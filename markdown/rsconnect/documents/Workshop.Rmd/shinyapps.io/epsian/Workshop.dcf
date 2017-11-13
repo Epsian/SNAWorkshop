@@ -1,0 +1,12 @@
+name: Workshop
+title: Workshop
+username:
+account: epsian
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 234762
+bundleId: 1071993
+url: https://epsian.shinyapps.io/Workshop/
+when: 1510537555.00337
+asMultiple: FALSE
+asStatic: FALSE
