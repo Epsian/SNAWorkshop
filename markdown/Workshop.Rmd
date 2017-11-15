@@ -15,6 +15,7 @@ if(!require(statnet)){
     install.packages("statnet")
     library(statnet)
 }
+par.d = par()
 ```
 
 ### Thinking with Networks
@@ -91,7 +92,7 @@ plot(de.h, main = "High Density", vertex.cex = 3)
 plot(de.l, main = "Low Density", vertex.cex = 3)
 ```
 
-**Centralization** measures give a sense of the shape of the network. Conssider the three networks below. The first "Star" network would be considered highly centralised, as one node connects all the others. 
+**Centralization** measures give a sense of the shape of the network. Conssider the three networks below. The first "Star" network would be considered highly centralised, as one node connects all the others. It would receve a degree centralization score of 1, as 100% of the ties are connected with one node. The line network would have a score of 0.1, as every node is equally connected to each other, ???????????????????????????????????
 ```{r Centralization}
 ce.star = matrix(data = c(0,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0), nrow = 6, ncol = 6)
 ce.star = network(ce.star, matrix.type = "adjacency", directed = FALSE)
@@ -117,22 +118,30 @@ plot(ce.circle, main = "Circle", vertex.cex = 3)
 ## Node Level Properties
 **Degree** measures are counts of how many edges are connected to a node. You can count incoming, outgoing, or total (Freeman) degree counts. This gives a very rough measure of how popular or central a node is in the network. 
 
-**Geodesic Distance** is defined as "the length of the shortest path via the edges or binary connections between nodes." [(Kadushin 2012)](https://global.oup.com/academic/product/understanding-social-networks-9780195379471?q=Understanding%20Social%20Networks&lang=en&cc=us) 
+**Geodesic Distance** is defined as "the length of the shortest path via the edges or binary connections between nodes." [(Kadushin 2012)](https://global.oup.com/academic/product/understanding-social-networks-9780195379471?q=Understanding%20Social%20Networks&lang=en&cc=us)
+```{r Geodesic, echo=FALSE, message=FALSE, warning=FALSE}
+data(florentine)
+gd = geodist(flomarriage)$gdist
+colnames(gd) = flomarriage%v%"vertex.names"
+row.names(gd) = flomarriage%v%"vertex.names"
+par(par.d)
+plot(flomarriage, main = "Florentine Marriage Network", displaylabels = TRUE, label.pos = 0, arrowhead.cex = 3, vertex.cex = 3)
+knitr::kable(gd)
+```
 
-**K-Core** measures the the minimum degree of nodes in an area of the network. 
+
+**K-Core** measures the the minimum degree of nodes in an area of the network. This results in redementary clustering of nodes.
+```{r, warning=FALSE}
+par(par.d)
+kc = kcores(flomarriage, mode="graph",diag=FALSE)
+plot(flomarriage, main = "K-Cores", vertex.cex = 3, vertex.col = kc+1)
+```
 
 **Centrality** measures how prominent or popular a specific node is in a network. 
 
 **Eigenvector Centrality**
 
 **Betweenness Centrality**
-
-### Example Data
-```{r Florentine}
-set.seed(12)
-data(florentine)
-plot(flomarriage, main = "Florentine Marriage Network", displaylabels = TRUE, label.pos = 0, arrowhead.cex = 3, vertex.cex = 3)
-```
 
 ## Try it Yourself!
 Here is an interactive network graph. Try adjusting the parameters to see how it affects the network!
@@ -147,6 +156,13 @@ checkboxInput("Dir.check", "Directed?")
 renderPlot({
   plot(network(rgraph(input$Nodes, mode = "digraph", tprob = input$TieProb), matrix.type = "adjacency", directed = input$Dir.check), arrowhead.cex = 3, vertex.cex = 3)
 })
+```
+
+### Example Data
+```{r Florentine}
+set.seed(12)
+data(florentine)
+plot(flomarriage, main = "Florentine Marriage Network", displaylabels = TRUE, label.pos = 0, arrowhead.cex = 3, vertex.cex = 3)
 ```
 
 # What does SNA Data Look Like?
@@ -212,3 +228,5 @@ Multiplex Networks (in Statnet) - Statnet has the ability to handle multiplex ne
 
 
 *Special Thanks to Dr. Chris Smith, ... . This presentation was created with the help of [(Kadushin 2012)](https://www.amazon.com/Understanding-Social-Networks-Theories-Concepts/dp/0195379470/ref=pd_bxgy_14_img_3?_encoding=UTF8&psc=1&refRID=9MSKEK7804SY2RS02HQG).*
+
+http://faculty.ucr.edu/~hanneman/nettext/C10_Centrality.html
