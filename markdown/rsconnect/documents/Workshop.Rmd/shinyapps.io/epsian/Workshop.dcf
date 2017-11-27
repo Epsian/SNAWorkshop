@@ -5,8 +5,8 @@ account: epsian
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 234762
-bundleId: 1071993
+bundleId: 1098048
 url: https://epsian.shinyapps.io/Workshop/
-when: 1510537555.00337
+when: 1511753977.05327
 asMultiple: FALSE
 asStatic: FALSE
