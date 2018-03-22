@@ -277,7 +277,7 @@ plot(flomarriage, # Name of your network object
      edge.col = "black") # Edge colors, takes a vector for the color of each edge
 ```
 
-## Network Peoperties
+## Network Properties
 
 **Degree**  
 Degree counts can be found using degree(), it will return a vector containing total degree count for each node. Be warned it defaults to considering the input network as directed, which will return bad values if the network is actually undirected. The variable to fix this is often called 'gmode', which accepts a string of either "digraph" for a directed network, or "graph" for an undirected network.
