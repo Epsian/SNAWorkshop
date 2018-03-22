@@ -94,7 +94,7 @@ plot(de.h, main = "High Density", vertex.cex = 3)
 plot(de.l, main = "Low Density", vertex.cex = 3)
 ```
 
-**Centralization** measures give a sense of the shape of the network. Consider the three networks below. The first "Star" network would be considered highly centralized, as one node connects all the others. It would receive a degree centralization score of 1, as 100% of the ties are connected with one node. The line network would have a score of 0.1, as every node is equally connected to each other, ???????????????????????????????????
+**Centralization** measures give a sense of the shape of the network, namely how other measures are distributed in a network. Consider the three networks below. The first "Star" network would be considered highly centralized, as one node connects all the others. It would receive a degree centralization score of 1, as 100% of the ties are connected with one node. The line network would have a score of 0.1, as every node is equally connected to each other.
 ```{r Centralization}
 # Networks created manually, to assure the propper shape
 ce.star = matrix(data = c(0,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0), nrow = 6, ncol = 6)
@@ -231,7 +231,7 @@ Statnet has few special coding conventions. Once your data is in one of the two 
 
 ## Network Basics
 
-**Creating a Network**
+**Creating a Network**  
 Once your data is in one of the forms discussed above, you can turn it into a network object by using the 'network()' function.  
 *Network Object* = network(x = *Your Data*, directed = *TRUE/FALSE*, matrix.type = *Edgelist or Adjacency Matrix*)  
 ```{r Create, echo=TRUE}
@@ -241,13 +241,13 @@ cn.data.e = rgraph(10, mode="digraph", tprob = .5, return.as.edgelist = TRUE)
 cn.e = network(x = cn.data.e, directed = FALSE, matrix.type = "edgelist")
 ```
 
-**Network Overview**
+**Network Overview**  
 Once transformed into a network object, you can call the object or use the summary() function to learn more about it. This provides node and edge counts, as well as the name of the attributes of your network. If the network were a normal flat data file, nodes would be cases, or rows, and node attributes would be the columns. All networks start with the "vertex.names" attribute. These names will be the same as the names used in the data you used to create the network.  
 ```{r Overview}
 summary(cn.e)
 ```
 
-**Network Attributes**
+**Network Attributes**  
 Network attributes can be accessed using a special statnet operator '%v%'. Edge attributes can likewise be accessed using '%e%' though they aren't as common. For example, looking at the Florentine network, we can get the names of all the nodes using flomarriage%v%"vertex.names" (The quotes are required!), and can assign them numbers using flomarriage%v%"Number" = 1:16.
 ```{r Attributes}
 flomarriage%v%"vertex.names"
@@ -258,7 +258,7 @@ names(fm.n) = flomarriage%v%"vertex.names"
 fm.n
 ```
 
-**Ploting**
+**Ploting**  
 Visualizing networks should be done early, it helps get a sense of the network. The standard R plot() command will S3 into the statnet plot.network(), which has a lot of networks specific options. You can see a number of plotting examples by looking at the code throughout this document.   
 ```{r PlotLoc, include=FALSE}
 p.e.c = plot(flomarriage) # Manually saving coordiantes
@@ -334,7 +334,7 @@ df.c = data.frame(id = 1:16,
                   kcore = kc.c,
                   betweenness = bt.c,
                   eigenvector = ev.c)
-knitr::kable(df.c)
+knitr::kable(df.c) # Generates the table below
 ```
 
 
