@@ -1,6 +1,6 @@
 ---
 title: "Social Network Analysis Workshop"
-author: "Jared Joseph"
+author: "Jared Joseph; jnjoseph@ucdavis.edu"
 date: "August 31, 2017"
 output: 
   html_document:
@@ -355,3 +355,14 @@ summary(flomarriage)
 *Special Thanks to Dr. Chris Smith, ... . This presentation was created with the help of [(Kadushin 2012)](https://www.amazon.com/Understanding-Social-Networks-Theories-Concepts/dp/0195379470/ref=pd_bxgy_14_img_3?_encoding=UTF8&psc=1&refRID=9MSKEK7804SY2RS02HQG).*
 
 http://faculty.ucr.edu/~hanneman/nettext/C10_Centrality.html
+
+
+---- Notes
+
+Live code the last bit, need new data though
+Have examples for each of the major measures
+Add ERGMs basic section
+add further reading section
+add my graphs
+add a d3 interactive one
+add NLP network as example
